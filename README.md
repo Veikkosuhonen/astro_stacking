@@ -32,13 +32,23 @@ Each step is implemented in the corresponding script section, where implementati
 
 ### Noise reduction
 
-A major issue in our experiment setup is the poor quality sensor, which in addition to gaussian-like noise produces a lot of singular overexposed pixels that remain constant between images. In the Affinity Photo (2023) astrophotography suite, these types of pixels are categorized as bad pixels (white), hot pixels (red) and cold pixels (blue). To an untrained eye this noise resembles stars and is problematic to any image alignment technique that relies on pixel luminance information. 
+A major issue in our experiment setup is the poor quality sensor, which in addition to gaussian-like noise produces a lot of singular overexposed pixels that remain constant between images. In the Affinity Photo (2023) astrophotography suite, these types of pixels are categorized as bad pixels (white), hot pixels (red) and cold pixels (blue). To an untrained eye this noise resembles stars and is problematic to any image alignment technique that relies on pixel luminance information. Below is an example of a hot pixel (right) next to Cassiopeia A in our main dataset.
 
-example of bad pixel
+![Cassiopeia A before processing](./images/cassiopeia_a_pre.png) ![Hot pixel before processing](./images/hot_pre.png)
 
 A common technique to counteract this is to use a so called 'dark frame', an image that is captured with the same settings as the 'light frames' but with the lens cap on, and then subtract it from the light frames. 
 
-A different method we came up to remove a significant amount of this noise exploits the fact that if multiple light frames are taken, the bad pixels should remain constant but the sky objects should move. By multiplying the `n` images elementwise and taking the `n`:th root of the result, we're left with an image where the bad pixels are orders of magnitude brighter than the rest of the image. We can then run a 5x5 max-filter (`imdilate` in Matlab) to fill an area around the bad pixel (which itself in our setup is around 5x5) with its brightest value. We then binarize the resulting image to create a bad pixel mask. This is done for the luminance, red and blue channels with tuneable thresholds. Finally the mask is applied to each image to remove the detected bad pixels, and the masked areas are set to the previously computed average pixel value.
+A different method we came up to remove a significant amount of this noise exploits the fact that if multiple light frames are taken, the bad pixels should remain constant but the sky objects should move. By multiplying the `n` images elementwise and taking the `n`:th root of the result, we're left with an image where the bad pixels are orders of magnitude brighter than the rest of the image. Below is the same hot pixel in the multiplied image, proving that it is fairly constant in all images.
+
+![Hot pixel in multiplied image](./images/hot_mult.png)
+
+We can then run a 5x5 disk shaped max-filter (`imdilate` in Matlab) to fill an area around the bad pixel with its brightest value. We then binarize the resulting image to create a bad pixel mask. This is done for the luminance, red and blue channels with tuneable thresholds. 
+
+![Bad pixel mask](./images/hot_mask.png)
+
+Finally the mask is applied to each image to remove the detected bad pixels, and the masked areas are set to the previously computed average pixel value.
+
+![Bad pixel removed](./images/hot_post.png)
 
 ### Finding reference stars
 
@@ -68,11 +78,11 @@ In this study we developed an astrophotography software that can be used to over
 
 ### Reflection
 
-The study was lacking in more analytic comparison of different methods, and background research was left to a minimum. I think these were partly to blame for the mediocre success, and in a project work I would next time put more focus in these areas. My time management was bad which is why I could not submit a good quality report in time.
+TODO
 
 ## References
 
-This section is not complete.
+TODO
 
 @article{BEROIZ2020100384,
     title = {Astroalign: A Python module for astronomical image registration},
