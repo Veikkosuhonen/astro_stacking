@@ -14,8 +14,8 @@ The issue preventing us from simply tuning the camera's exposure time setting to
 
 ## Data collection
 
-Our main dataset consists of 50 5184 × 3456 raw images taken at 20 seconds of exposure time, focal length of 18 mm and f/9.
-The ISO setting is kept at a constant 1600. All the images are taken within 2-10 seconds of the previous. A light pollution filter is used although its effect is not measured. No preprocessing is done outside of the Matlab script. An example dataset of 10 jpeg images is included.
+Our main dataset consists of 50 5184 × 3456 raw images taken at 20 seconds of exposure time, focal length of 18 mm and f/9. In total, we have 1000 seconds of exposure.
+The ISO setting is kept at a constant 1600. All the images are taken within 2-10 seconds of the previous. A light pollution filter is used although its effect is not measured. No preprocessing is done outside of the Matlab script. An example dataset of 10 jpeg images from the main dataset is included for test running the script.
 
 ## Image processing method
 
@@ -32,23 +32,46 @@ Each step is implemented in the corresponding script section, where implementati
 
 ### Noise reduction
 
-A major issue in our experiment setup is the poor quality sensor, which in addition to gaussian-like noise produces a lot of singular overexposed pixels that remain constant between images. In the Affinity Photo (2023) astrophotography suite, these types of pixels are categorized as bad pixels (white), hot pixels (red) and cold pixels (blue). To an untrained eye this noise resembles stars and is problematic to any image alignment technique that relies on pixel luminance information. Below is an example of a hot pixel (right) next to Cassiopeia A in our main dataset.
+A major issue in our experiment setup is the poor quality sensor, which in addition to gaussian-like noise produces a lot of singular overexposed pixels that remain constant between images. In the Affinity Photo (2023) astrophotography suite, these types of pixels are categorized as bad pixels (white), hot pixels (red) and cold pixels (blue). To an untrained eye this noise resembles stars and is problematic to any image alignment technique that relies on pixel luminance information. 
 
-![Cassiopeia A before processing](./images/cassiopeia_a_pre.png) ![Hot pixel before processing](./images/hot_pre.png)
+<figure>
+    <img src="./images/cassiopeia_a_pre.png" alt="Cassiopeia A before processing" height="100px"/>
+    <img src="./images/hot_pre.png" alt="Hot pixel before processing" height="100px"/>
+    <figcaption>
+        Example of a hot pixel (right) compared to Cassiopeia A in our main dataset.
+    </figcaption>
+</figure>
 
 A common technique to counteract this is to use a so called 'dark frame', an image that is captured with the same settings as the 'light frames' but with the lens cap on, and then subtract it from the light frames. 
 
-A different method we came up to remove a significant amount of this noise exploits the fact that if multiple light frames are taken, the bad pixels should remain constant but the sky objects should move. By multiplying the `n` images elementwise and taking the `n`:th root of the result, we're left with an image where the bad pixels are orders of magnitude brighter than the rest of the image. Below is the same hot pixel (right) in the multiplied image next to Cassiopeia A, proving that the bad pixel is fairly constant in all images while the star is not.
+A different method we came up to remove a significant amount of this noise exploits the fact that if multiple light frames are taken, the bad pixels should remain constant but the sky objects should move. By multiplying the `n` images elementwise and taking the `n`:th root of the result, we're left with an image where the bad pixels are orders of magnitude brighter than the rest of the image. 
 
-![Cassiopeia A in multiplied image](./images/cassiopeia_a_mult.png) ![Hot pixel in multiplied image](./images/hot_mult.png)
+<figure>
+    <img src="./images/cassiopeia_a_mult.png" alt="Cassiopeia A in multiplied image" height="100px"/>
+    <img src="./images/hot_mult.png" alt="Hot pixel in multiplied image" height="100px"/>
+    <figcaption>
+        The same hot pixel (right) in the multiplied image next to Cassiopeia A, proving that the bad pixel is fairly constant in all images while the star is not.
+    </figcaption>
+</figure>
 
 We can then run a 5x5 disk shaped max-filter (`imdilate` in Matlab) to fill an area around the bad pixel with its brightest value. We then binarize the resulting image to create a bad pixel mask. This is done for the luminance, red and blue channels with tuneable thresholds. 
 
-![Bad pixel mask](./images/hot_mask.png)
+<figure>
+    <img src="./images/hot_mask.png" alt="Bad pixel mask" height="100px"/>
+    <figcaption>
+        Mask at the bad pixel
+    </figcaption>
+</figure>
 
-Finally the mask is applied to each image to remove the detected bad pixels. Below is the bad pixel (right), which is completely removed after masking, and Cassiopeia A which is unaffected.
+Finally the mask is applied to each image to remove the detected bad pixels.
 
-![Cassiopeia A unaffected](./images/cassiopeia_a_post.png) ![Bad pixel removed](./images/hot_post.png)
+<figure>
+    <img src="./images/cassiopeia_a_post.png" alt="Cassiopeia A in multiplied image" height="100px"/>
+    <img src="./images/hot_post.png" alt="Hot pixel in multiplied image" height="100px"/>
+    <figcaption>
+        The bad pixel (right), which is fairly well removed after masking, and Cassiopeia A which is unaffected.
+    </figcaption>
+</figure>
 
 ### Finding reference stars
 
@@ -57,6 +80,13 @@ Our goal is to find a number of stars' locations that are present in each image,
 First we find some bright stars in each image by going through each pixel, and when finding a bright pixel, we register it as a star and store its XY-location. Because stars in our images consist of multiple pixels, we also check that there are no other already registered stars near the bright pixel. This way we generate a list of candidates for reference stars in each image.
 
 Next we prune the candidates so that only stars that are visible in every image are left. This is done by looking at each star's location in each image and checking that a star exists close to the same location in every other image when considering the chronological distance between the images. This method is potentially error-prone, but with some parameter tweaking works well enough on the datasets we've tested.
+
+<figure>
+    <img src="./images/reference_stars.jpg" alt="Example of found reference stars" height="200px"/>
+    <figcaption>
+        Reference stars found in our dataset. The middle constellation is Cassiopeia.
+    </figcaption>
+</figure>
 
 ### Inferring transformations and stacking
 
@@ -70,7 +100,7 @@ A few different alignment methods were tried during this study. First, the gradi
 
 Image alignment based on star location information is clearly the de facto method in astrophotography, and the methods such as that presented in Beroiz et al 2020 are very robust. In our method, we identify the main issues causing poor aligmnent to be the reference star registration algorithm possibly in tandem with the geometric transformation inferring using `fitgeotform2d`. The accuracy of the star registration can be poor due to the method simply scanning pixels linearly and finding the first bright pixel of a star instead of trying to find the actual star center. In addition, the method finds more reference stars near the center, as the stars near the edges are often not present in each image, missing out on some potentially useful alignment information. `fitgeotform2d` also is not ideal for our setup, as it includes scaling in the transformation, which is not useful in our datasets as the magnification is constant.
 
-The noise reduction method used in the study is somewhat successfull in removing the worst of the bad-pixel noise from the image. It's main problem is that its parameters must be tuned for each dataset individually. With suboptimal parameters chosen, a lot of noisy pixels may be visible as "noise-trails" in the resulting image. The method also does not remove any gaussian-like noise. And finally, it is developed to only work with our setup and may not be very extendable to other setups or datasets. Compared to the typical dark-frame noise removal, our method is faster in the data collection phase as no calibration frames are taken, but it likely performs much poorer in the end result. 
+The noise reduction method used in the study is somewhat successfull in removing the worst of the bad-pixel noise from the image. It's main problem is that its parameters must be tuned for each dataset individually. With suboptimal parameters chosen, a lot of noisy pixels may be visible as "noise-trails" in the resulting image. The method also does not remove any gaussian-like noise. It is developed to only work with our setup and may not be very extendable to other setups or datasets. Compared to the typical dark-frame noise removal, our method is faster in the data collection phase as no calibration frames are taken, but it likely performs poorer in the end result. 
 
 ## Conclusion
 
