@@ -38,17 +38,17 @@ A major issue in our experiment setup is the poor quality sensor, which in addit
 
 A common technique to counteract this is to use a so called 'dark frame', an image that is captured with the same settings as the 'light frames' but with the lens cap on, and then subtract it from the light frames. 
 
-A different method we came up to remove a significant amount of this noise exploits the fact that if multiple light frames are taken, the bad pixels should remain constant but the sky objects should move. By multiplying the `n` images elementwise and taking the `n`:th root of the result, we're left with an image where the bad pixels are orders of magnitude brighter than the rest of the image. Below is the same hot pixel in the multiplied image, proving that it is fairly constant in all images.
+A different method we came up to remove a significant amount of this noise exploits the fact that if multiple light frames are taken, the bad pixels should remain constant but the sky objects should move. By multiplying the `n` images elementwise and taking the `n`:th root of the result, we're left with an image where the bad pixels are orders of magnitude brighter than the rest of the image. Below is the same hot pixel (right) in the multiplied image next to Cassiopeia A, proving that the bad pixel is fairly constant in all images while the star is not.
 
-![Hot pixel in multiplied image](./images/hot_mult.png)
+![Cassiopeia A in multiplied image](./images/cassiopeia_a_mult.png) ![Hot pixel in multiplied image](./images/hot_mult.png)
 
 We can then run a 5x5 disk shaped max-filter (`imdilate` in Matlab) to fill an area around the bad pixel with its brightest value. We then binarize the resulting image to create a bad pixel mask. This is done for the luminance, red and blue channels with tuneable thresholds. 
 
 ![Bad pixel mask](./images/hot_mask.png)
 
-Finally the mask is applied to each image to remove the detected bad pixels, and the masked areas are set to the previously computed average pixel value.
+Finally the mask is applied to each image to remove the detected bad pixels. Below is the bad pixel (right), which is completely removed after masking, and Cassiopeia A which is unaffected.
 
-![Bad pixel removed](./images/hot_post.png)
+![Cassiopeia A unaffected](./images/cassiopeia_a_post.png) ![Bad pixel removed](./images/hot_post.png)
 
 ### Finding reference stars
 
