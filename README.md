@@ -92,7 +92,7 @@ Next we prune the candidates so that only stars that are visible in every image 
 
 ### Inferring transformations and stacking
 
-We select the chronologically middle image to be the fixed reference. We iteratively align each image to the fixed reference. Choosing the locations of the stars in the image to be aligned and the reference image and using the Matlab function `fitgeotform2d`, we infer a 2D transformation consisting of translation, rotation and scaling that best aligns the stars. Now the transformation can be applied to the image to be aligned by using `imwarp`. Finally, all the images are added together elementwise, and the result is scaled back to 0-1.
+We select the chronologically middle image to be the fixed reference. We iteratively align each image to the fixed reference. We select the star locations in the image to be aligned, and the star locations in the reference image as arrays of 2d points. Using the Matlab function `fitgeotform2d` which takes two arrays of point coordinates as arguments, we infer a 2D transformation consisting of translation, rotation and scaling that best aligns the stars. Now the transformation can be applied to the image to be aligned by using `imwarp`. Finally, all the images are added together elementwise, and the result is scaled back to 0-1.
 
 ### Post-processing
 
