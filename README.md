@@ -46,7 +46,7 @@ A major issue that comes with digital astrophotography is the sensor noise, whic
 
 A common technique to counteract this is to use a so called 'dark frame', an image that is captured with the same settings as the 'light frames' but with the lens cap on, and then subtract it from the light frames (Covington 2007).
 
-A different method we came up to remove a significant amount of this noise exploits the fact that if multiple light frames are taken, the bad pixels should remain constant but the sky objects should move. By multiplying the `n` images elementwise and taking the `n`:th root of the result, we're left with an image where the bad pixels are orders of magnitude brighter than the rest of the image. 
+A different method we came up to remove a significant amount of this noise exploits the fact that if multiple light frames are taken, the hot pixels should remain constant but the sky objects should move. By multiplying the `n` images elementwise and taking the `n`:th root of the result, we're left with an image where the hot pixels are orders of magnitude brighter than the rest of the image. 
 
 <figure>
     <img src="./images/cassiopeia_a_mult.png" alt="Cassiopeia A in multiplied image" height="100px"/>
@@ -56,7 +56,7 @@ A different method we came up to remove a significant amount of this noise explo
     </figcaption>
 </figure>
 
-We can then run a 5x5 disk shaped max-filter (`imdilate` in Matlab) to fill an area around the bad pixel with its brightest value. We then binarize the resulting image to create a bad pixel mask. This is done for the luminance, red and blue channels with tuneable thresholds. 
+We can then run a 5x5 disk shaped max-filter (`imdilate` in Matlab) to fill an area around the hot pixel with its brightest value. We then binarize the resulting image to create a hot pixel mask. A good threshold for the binarization operation is chosen by trial and error.
 
 <figure>
     <img src="./images/hot_mask.png" alt="Bad pixel mask" height="100px"/>
