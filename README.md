@@ -140,7 +140,7 @@ We also did not try to address any of the gaussian-like noise caused by factors 
 
 ## Conclusion
 
-In this study we developed an image stacking astrophotography software that can be used to overcome some of the SNR limitations of a DSLR on a fixed tripod. The methods we developed provided partial success but results showed that more work is needed to fix some of bigger issues in the current version. The poor performance of the star aligment is a significant problem in our method that will be improved in future versions. The option to use dark frames will also be incorporated to deal with the general noise. More research on the astrophotography imaging setup should also be done to improve the quality.
+In this study we developed an image stacking astrophotography software that can be used to overcome some of the SNR limitations of a DSLR on a fixed tripod. The methods we developed provided partial success but results showed that more work is needed to fix some of bigger issues in the current version. The poor performance of the star aligment is a significant problem in our method that will be improved in future versions. The option to use dark frames will also be incorporated to deal with the general noise. More research on the astrophotography imaging setup should also be done to improve the quality. Instead of simple averaging, we should consider sigma stacking (Covington 2007).
 
 ### Reflection
 
