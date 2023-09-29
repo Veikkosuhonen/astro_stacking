@@ -102,13 +102,13 @@ Our goal with post-processing is to enchance the dim objects of the sky and redu
 
 <img src="./images/result.jpg" height="600px" />
 
-The main dataset of 50 images and 17 minutes of exposure with our method produces an image with significantly more detail than any single image, and slightly seems to surpass what a bare eye would be able to see. We can see for example the Double Cluster and M13. The result is still quite far from impressive considering how much exposure time we had. Especially the noisiness of the image is quite dissapointing.
+The main dataset of 50 images and 17 minutes of exposure with our method produces an image with significantly more detail than any single image, and slightly seems to surpass what a bare eye would be able to see. We can see for example the Double Cluster and M31 (Andromeda galaxy). The result is still quite far from impressive considering how much exposure time we had. Especially the noisiness of the image is quite dissapointing.
 
 <figure>
     <img src="./images/double_cluster.jpg" height="300px"/>
     <img src="./images/m13.jpg" height="300px"/>
     <figcaption>
-        The Double cluster (left) and M13 are cleary visible in the result, albeit far from impressive.
+        The Double cluster (left) and M31 are cleary visible in the result, albeit far from impressive.
     </figcaption>
 </figure>
 
