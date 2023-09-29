@@ -92,19 +92,23 @@ Next we prune the candidates so that only stars that are visible in every image 
 
 ### Inferring transformations and stacking
 
-We select the chronologically middle image to be the fixed reference. Using the Matlab function `fitgeotform2d`, we infer a 2D transformation consisting of translation, rotation and scaling that best aligns the reference stars between each image and the reference image. Now the transformation can be applied to each image using `imwarp` 
+We select the chronologically middle image to be the fixed reference. We iteratively align each image to the fixed reference. Choosing the locations of the stars in the image to be aligned and the reference image and using the Matlab function `fitgeotform2d`, we infer a 2D transformation consisting of translation, rotation and scaling that best aligns the stars. Now the transformation can be applied to the image to be aligned by using `imwarp`. Finally, all the images are added together elementwise, and the result is scaled back to 0-1.
+
+### Post-processing
+
+Our goal with post-processing is to enchance the dim objects of the sky and reduce some of the background noise and skylight. We begin by subtracting a fixed value from the image to make the dark areas darker while hopefully preserving all important detail. The fixed value is chosen as the per-channel median of the central area of the image. With this, some noise and skylight is removed and contrast is increased. Then we apply a gamma correction with gamma = 0.5. Finally, we multiply the whole image by 4 to move the dynamic range to the darker parts of the image. We lose detail on all bright stars but enchance the dim objects. The result is not very pretty, but shows a great deal of detail.
 
 ## Results and analysis
 
 <img src="./images/result.jpg" height="800px" />
 
-The main dataset of 50 images and 17 minutes of exposure with our method produces an image with significantly more detail than any single image, and slightly seems to surpass what a bare eye would be able to see. We can see for example the Double Cluster and M13. The result is still quite far from impressive considering how much exposure time we had.
+The main dataset of 50 images and 17 minutes of exposure with our method produces an image with significantly more detail than any single image, and slightly seems to surpass what a bare eye would be able to see. We can see for example the Double Cluster and M13. The result is still quite far from impressive considering how much exposure time we had. Especially the noisiness of the image is quite dissapointing.
 
 <figure>
     <img src="./images/double_cluster.jpg" height="400px"/>
     <img src="./images/m13.jpg" height="400px"/>
     <figcaption>
-        Double cluster (left) and M13 are cleary visible in the result, albeit far from impressive.
+        The Double cluster (left) and M13 are cleary visible in the result, albeit far from impressive.
     </figcaption>
 </figure>
 
@@ -119,12 +123,12 @@ The hot pixel noise reduction method used in the study is quite successfull in r
 <figure>
     <img src="./images/noise_trails.jpeg" alt="Example of noise trails" height="600px"/>
     <figcaption>
-        Strong blue noise trails appear when the noise reduction threshold is too high and does not detect hot pixels.
+        Strong noise trails appear when the noise reduction threshold is too high and does not detect hot pixels.
     </figcaption>
 </figure>
 
 Compared to the typical dark-frame noise removal, our method is faster in the data collection phase as no calibration frames are taken, but it might performs poorer in the end result.
-In this study we do not try to address any of the gaussian-like noise caused by factors such as dark current. The choice of ISO 1600 may have contributed to the high noise levels in our images, which result in clearly visible trails left by noise after alignment.
+In this study we do not try to address any of the gaussian-like noise caused by factors such as dark current. The choice of ISO 1600 may have contributed to the high noise levels in our images, which result in the trails left by noise after alignment.
 
 <figure>
     <img src="./images/dark_current.jpg" alt="Example of noise trails" height="600px"/>
@@ -136,15 +140,13 @@ In this study we do not try to address any of the gaussian-like noise caused by 
 
 ## Conclusion
 
-In this study we developed an image stacking astrophotography software that can be used to overcome some of the SNR limitations of a DSLR on a fixed tripod. The methods we developed provided partial success but results showed that more work is needed to fix some of bigger issues in the current version. The poor performance of the star aligment is the primary problem that will be improved in future versions. The option to use dark frames will also be incorporated to improve the noise reduction method.
+In this study we developed an image stacking astrophotography software that can be used to overcome some of the SNR limitations of a DSLR on a fixed tripod. The methods we developed provided partial success but results showed that more work is needed to fix some of bigger issues in the current version. The poor performance of the star aligment is a significant problem in our method that will be improved in future versions. The option to use dark frames will also be incorporated to deal with the general noise. More research on the astrophotography imaging setup should also be done to improve the quality.
 
 ### Reflection
 
-Doing this study was a very fun and educative experience. However, if I were to do something similar again I should focus more on research early on, instead of diving straight into practise. I did not have any real experience with DSLRs let alone astrophotography, so I made a lot of mistakes and the images used in the study were not as good as they could have been. I also made a lot of assumptions about the theoretical parts which I had to correct later when I spent time on research. 
+Doing this study was a very fun and educative experience. However, if I were to do something similar again I should focus more on research early on, instead of diving straight into practise. I did not have any real experience with DSLRs let alone astrophotography, so I made a lot of mistakes and the images used in the study were not as good as they could have been. I made a lot of assumptions about the theoretical parts which I had to correct later when I spent time on research. My time management was not very good as I had to rush the report writing and research. But overall I had fun and the project got me interested in astrophotography and signal processing in general.
 
 ## References
-
-TODO
 
 @article{BEROIZ2020100384,
     title = {Astroalign: A Python module for astronomical image registration},
