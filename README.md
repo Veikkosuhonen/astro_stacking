@@ -100,13 +100,13 @@ Our goal with post-processing is to enchance the dim objects of the sky and redu
 
 ## Results and analysis
 
-<img src="./images/result.jpg" height="800px" />
+<img src="./images/result.jpg" height="600px" />
 
 The main dataset of 50 images and 17 minutes of exposure with our method produces an image with significantly more detail than any single image, and slightly seems to surpass what a bare eye would be able to see. We can see for example the Double Cluster and M13. The result is still quite far from impressive considering how much exposure time we had. Especially the noisiness of the image is quite dissapointing.
 
 <figure>
-    <img src="./images/double_cluster.jpg" height="400px"/>
-    <img src="./images/m13.jpg" height="400px"/>
+    <img src="./images/double_cluster.jpg" height="300px"/>
+    <img src="./images/m13.jpg" height="300px"/>
     <figcaption>
         The Double cluster (left) and M13 are cleary visible in the result, albeit far from impressive.
     </figcaption>
@@ -121,7 +121,7 @@ Image alignment based on star location information is clearly the de facto metho
 The hot pixel noise reduction method used in the study is quite successfull in removing the hot pixels from the image. It's main problem is that its parameters must be tuned for each dataset individually. If the noise threshold is set too high, a lot of hot pixels may be visible as "noise-trails" in the resulting image. If the noise threshold is too low, the noise reduction may produce a lot of "holes" in the resulting image and eat into the signal.
 
 <figure>
-    <img src="./images/noise_trails.jpeg" alt="Example of noise trails" height="600px"/>
+    <img src="./images/noise_trails.jpeg" alt="Example of noise trails" height="500px"/>
     <figcaption>
         Strong noise trails appear when the noise reduction threshold is too high and does not detect hot pixels.
     </figcaption>
@@ -131,7 +131,7 @@ Compared to the typical dark-frame noise removal, our method is faster in the da
 We also did not try to address any of the gaussian-like noise caused by factors such as dark current. The choice of ISO 1600 may have contributed to the high noise levels in our images, which result in the trails left by noise after alignment.
 
 <figure>
-    <img src="./images/dark_current.jpg" alt="Example of noise trails" height="600px"/>
+    <img src="./images/dark_current.jpg" alt="Example of noise trails" height="500px"/>
     <figcaption>
         Noise trails very visible in an amplified image after stacking.
     </figcaption>
