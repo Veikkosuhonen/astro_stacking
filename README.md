@@ -114,9 +114,9 @@ The main dataset of 50 images and 17 minutes of exposure with our method produce
 
 It is clear that our alignment method is only partially successfull. For the main dataset, it manages to align the central region of the images fairly well but regions further from the center leave clear star trails. 
 
-A few different alignment methods were tried during this study. First, the gradient descent -based Matlab `imregister` with mse cost function was tested, but it performed very poorly. We speculated that this was due to the optimized not finding any gradient between the very sparse images of stars, so the alignment was attempted with heavily blurred images. This yielded partial success but still often resulted in very large errors. Next, the `imregcorr`, which uses phase correlation to find a good transform, was tested and it managed to perform well with the blurred alignment images on some datasets but very poorly on most.
+A few different alignment methods were tried during this study. First, the gradient descent -based Matlab `imregister` with mse cost function was tested, but it performed very poorly. We speculated that this was due to the optimized not finding any gradient between the very sparse images of stars, so the alignment was attempted with heavily blurred images. This yielded partial success but still often resulted in very large errors. Next, the `imregcorr` function was tested. It uses phase correlation, which can estimate the translation between images through cross-correlation in the frequency domain (Phase correlation, Wikipedia). As phase correlation does not consider rotation, it seems like a poor candidate as an alignment algorithm, but we had partial success on some datasets where the centre of rotation was far outside the image and could combine it with `imregister` for better results.
 
-Image alignment based on star location information is clearly the de facto method in astrophotography, and the methods such as that presented in Beroiz et al 2020 are very robust. In our method, we identify the main issues causing poor aligmnent to be the reference star registration algorithm possibly in tandem with the geometric transformation inferring using `fitgeotform2d`. The accuracy of the star registration can be poor due to the method simply scanning pixels linearly and finding the first bright pixel of a star instead of trying to find the actual star center. In addition, the method finds more reference stars near the center, as the stars near the edges are often not present in each image due to rotation, missing out on some potentially useful alignment information. `fitgeotform2d` also is not ideal for our setup, as it includes scaling in the transformation, which is not useful in our datasets as the magnification is constant.
+Image alignment based on star location information is clearly the de facto method in astrophotography, and the methods such as that presented in Beroiz et al 2020 are very robust. This is why we eventually also settled on using the star locations with `fitgeotform2d` to perform alignment. In our method, we identify the main issues causing poor aligmnent to be the reference star registration algorithm possibly in tandem with the geometric transformation inferring using `fitgeotform2d`. The accuracy of the star registration can be poor due to the method simply scanning pixels linearly and finding the first bright pixel of a star instead of trying to find the actual star center. In addition, the method finds more reference stars near the center, as the stars near the edges are often not present in each image due to rotation, missing out on some potentially useful alignment information. `fitgeotform2d` also is not ideal for our setup, as it includes scaling in the transformation, which is not useful in our datasets as the magnification is constant.
 
 The hot pixel noise reduction method used in the study is quite successfull in removing the hot pixels from the image. It's main problem is that its parameters must be tuned for each dataset individually. If the noise threshold is set too high, a lot of hot pixels may be visible as "noise-trails" in the resulting image. If the noise threshold is too low, the noise reduction may produce a lot of "holes" in the resulting image and eat into the signal.
 
@@ -128,7 +128,7 @@ The hot pixel noise reduction method used in the study is quite successfull in r
 </figure>
 
 Compared to the typical dark-frame noise removal, our method is faster in the data collection phase as no calibration frames are taken, but it might performs poorer in the end result.
-In this study we do not try to address any of the gaussian-like noise caused by factors such as dark current. The choice of ISO 1600 may have contributed to the high noise levels in our images, which result in the trails left by noise after alignment.
+We also did not try to address any of the gaussian-like noise caused by factors such as dark current. The choice of ISO 1600 may have contributed to the high noise levels in our images, which result in the trails left by noise after alignment.
 
 <figure>
     <img src="./images/dark_current.jpg" alt="Example of noise trails" height="600px"/>
@@ -148,38 +148,20 @@ Doing this study was a very fun and educative experience. However, if I were to 
 
 ## References
 
-@article{BEROIZ2020100384,
-    title = {Astroalign: A Python module for astronomical image registration},
-    journal = {Astronomy and Computing},
-    volume = {32},
-    pages = {100384},
-    year = {2020},
-    issn = {2213-1337},
-    doi = {https://doi.org/10.1016/j.ascom.2020.100384},
-    url = {https://www.sciencedirect.com/science/article/pii/S221313372030038X},
-    author = {M. Beroiz and J.B. Cabral and B. Sanchez},
-    keywords = {Astronomy, Image registration, Python package},
-    abstract = {We present an algorithm implemented in the Astroalign Python module for image registration in astronomy. Our module does not rely on WCS information and instead matches three-point asterisms (triangles) on the images to find the most accurate linear transformation between them. It is especially useful in the context of aligning images prior to stacking or performing difference image analysis. Astroalign can match images of different point-spread functions, seeing, and atmospheric conditions.}
-}
+M. Beroiz, J.B. Cabral, & B. Sanchez (2020). Astroalign: A Python module for astronomical image registration. Astronomy and Computing, 32, 100384.
+
+Morison, I. (2017). The art of astrophotography / Ian Morison, Jodrell Bank, University of Manchester. [electronic resource]. Cambridge University Press.
+
+Covington, M. (2007). Digital SLR Astrophotography / Michael A. Covington.. Cambridge University Press.
 
 Astrophotography, Wikipedia (viewed 24.10.2023)
 https://en.wikipedia.org/wiki/Astrophotography
 
-Signal Averaging,   (viewed 24.10.2023)
+Signal Averaging, Wikipedia (viewed 24.10.2023)
 https://en.wikipedia.org/wiki/Signal_averaging
 
-Dark Current,   (viewed 25.10.2023)
+Dark Current, Wikipedia (viewed 25.10.2023)
 https://en.wikipedia.org/wiki/Dark_current_(physics)
 
-@book{alma9934311169206253,
-author = {Morison, Ian},
-abstract = {In The Art of Astrophotography, astronomer and Astronomy Now columnist Ian Morison provides the essential foundations of how to produce beautiful astronomical images. Every type of astroimaging is covered, from images of the Moon and planets, to the constellations, star clusters and nebulae within our Milky Way Galaxy and the faint light of distant galaxies. He achieves this through a series of worked examples and short project walk-throughs, detailing the equipment needed - starting with just a DSLR (digital single lens reflex) camera and tripod, and increasing in complexity as the book progresses - followed by the way to best capture the images and then how, step by step, these may be processed and enhanced to provide results that can rival those seen in astronomical magazines and books. Whether you are just getting into astrophotography or are already deeply involved, Morison's advice will help you capture and create enticing astronomical images.},
-address = {Cambridge},
-booktitle = {The art of astrophotography},
-isbn = {1-316-98170-3},
-keywords = {Astronomical photography},
-language = {eng},
-publisher = {Cambridge University Press},
-title = {The art of astrophotography / Ian Morison, Jodrell Bank, University of Manchester. [electronic resource]},
-year = {2017},
-}
+Phase Correlation, Wikipedia (viewed 20.10.2023)
+https://en.wikipedia.org/wiki/Phase_correlation
