@@ -7,36 +7,52 @@
 %
 % The directory 'lights' should contain all the images to be stacked.
 % Running takes a few minutes depending on the number of images.
-%.
 %
+% This script also contains simple dark frame subtraction.
+% Put the dark frames in "darks".
 
 clc;
 close all;
+
+% Set this to use the dark frame subtraction in addition to normal 
+use_dark_frame_subtraction = false;
+
 
 disp("Loading images...")
 
 % Find the names of each file in the subfolder 'lights' so we can read
 % dynamically any files without remembering their names
 dir_name = "lights";
+dark_frame_dir_name = "darks";
 
 dirinfo = dir(dir_name);
+dirinfo2 = dir(dark_frame_dir_name);
 
 [n_files,~] = size(dirinfo);
+[n_files2, ~] = size(dirinfo2);
 
 % dirinfo(1) and dirinfo(2) are dirs '.' and '..', skip them
 n = n_files - 2;
+n_darks = n_files2 - 2;
 
 % Read in and preprocess all the images to a cell of size n
 %
 ims = cell(n);
+darks = cell(n_darks);
 
 for i = 3:n_files
     ims{i - 2} = read_and_preprocess(dir_name + "/" + dirinfo(i).name);
 end
 
+if use_dark_frame_subtraction
+    for i = 3:n_files2
+        darks{i - 2} = read_and_preprocess(dark_frame_dir_name + "/" + dirinfo2(i).name);
+    end
+end
+
 disp("Images loaded");
 %% Rescaling to 0-1
-% Find min and max
+% Find min and max of lights and darks
 disp("Rescaling...");
 min_a = 1e9;
 max_a = -1e9;
@@ -47,15 +63,42 @@ for i = 1:n
     min_a = min(min_a, i_min);
     max_a = max(max_a, i_max);
 end
+if use_dark_frame_subtraction
+    for i = 1:n_darks
+        im = darks{i};
+        i_min = min(im(:));
+        i_max = max(im(:));
+        min_a = min(min_a, i_min);
+        max_a = max(max_a, i_max);
+    end
+end
 
-% Rescale
+% Rescale lights and darks
 for i = 1:n
     im = ims{i};
     ims{i} = (im - min_a) ./ (max_a - min_a);
 end
-
+if use_dark_frame_subtraction
+    for i = 1:n_darks
+        im = darks{i};
+        darks{i} = (im - min_a) ./ (max_a - min_a);
+    end
+end
 disp("Done");
-
+%% Dark frame subtraction
+if use_dark_frame_subtraction
+    disp("Dark frame subtraction...");
+    dark = darks{1};
+    for i = 2:n_darks
+        dark = dark + darks{i};
+    end
+    dark = dark ./ n_darks;
+    
+    for i = 1:n
+        ims{i} = max(ims{i} - dark, 0.0);
+    end
+    disp("Done");
+end
 %% Noise reduction
 % Detect and mask hot pixels
 
@@ -304,7 +347,7 @@ im = min(im .* 4, 1.0);
 axis off;
 imshow(im);
 %% Save the result
-imwrite(im, "result.png");
+imwrite(im, "result_with_dark_frame.png");
 
 %%
 function im = read_and_preprocess(filename)
